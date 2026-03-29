@@ -87,12 +87,34 @@ export function Footer() {
                 </li>
               ))}
             </ul>
+          </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-2.5">
-              <PaymentBadge label="VISA" className="text-[#1f57a3]" />
-              <PaymentBadge label="MasterCard" className="text-[#e24329]" />
-              <PaymentBadge label="CASH" className="text-[#3f3f3f]" />
-              <PaymentBadge label="EASY PLAN" className="text-[#2a87bf]" />
+          <div className="md:col-span-2 lg:col-start-3 lg:col-span-2 lg:-mt-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
+              <PaymentBadgeImage
+                src="/footer/visa.png"
+                alt="Visa"
+                width={160}
+                height={72}
+              />
+              <PaymentBadgeImage
+                src="/footer/mastercard.png"
+                alt="MasterCard"
+                width={160}
+                height={72}
+              />
+              <PaymentBadgeImage
+                src="/footer/cod.png"
+                alt="Cash on Delivery"
+                width={160}
+                height={72}
+              />
+              <PaymentBadgeImage
+                src="/footer/installment.png"
+                alt="Easy Installment Plans"
+                width={160}
+                height={72}
+              />
             </div>
           </div>
         </div>
@@ -124,10 +146,26 @@ function FooterColumn({ title, links }: { title: string; links: string[] }) {
   )
 }
 
-function PaymentBadge({ label, className }: { label: string; className: string }) {
+function PaymentBadgeImage({
+  src,
+  alt,
+  width,
+  height,
+}: {
+  src: string
+  alt: string
+  width: number
+  height: number
+}) {
   return (
-    <div className="grid h-13 place-items-center rounded-md bg-white px-3">
-      <span className={`text-[14px] font-semibold ${className}`}>{label}</span>
+    <div className="grid h-15 place-items-center rounded-md bg-white px-2 sm:h-16 sm:px-2.5 lg:h-14">
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        className="h-10 w-auto object-contain sm:h-11 lg:h-9"
+      />
     </div>
   )
 }

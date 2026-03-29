@@ -33,7 +33,7 @@ export function HomeNavbar() {
   return (
     <header className="w-full border-b border-(--winstore-border) shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
       <div className="bg-(--winstore-nav-top) text-white">
-        <div className="mx-auto flex max-w-11/12 w-full items-center gap-6 px-4 py-5 lg:px-8">
+        <div className="mx-auto flex w-full max-w-11/12 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 lg:gap-6 lg:px-8 lg:py-5">
           <div className="shrink-0">
             <a
               href="#"
@@ -46,7 +46,7 @@ export function HomeNavbar() {
                 width={180}
                 height={56}
                 priority
-                className="h-11 w-auto"
+                className="h-8 w-auto sm:h-10 lg:h-11"
               />
             </a>
           </div>
@@ -107,18 +107,18 @@ export function HomeNavbar() {
             </button>
           </div>
 
-          <div className="ml-auto flex items-center gap-3 lg:hidden">
+          <div className="ml-auto flex items-center gap-2 sm:gap-3 lg:hidden">
             <button type="button" aria-label="Open menu" className="rounded-md p-2 hover:bg-white/10">
-              <Menu className="h-6 w-6" />
+              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
             <button type="button" aria-label="Cart" className="rounded-md p-2 hover:bg-white/10">
-              <ShoppingCart className="h-6 w-6" />
+              <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
           </div>
         </div>
 
-        <div className="px-4 pb-4 lg:hidden">
-          <div className="flex h-11 items-center overflow-hidden rounded-md bg-white">
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4 lg:hidden">
+          <div className="flex h-10 items-center overflow-hidden rounded-md bg-white sm:h-11">
             <input
               type="text"
               aria-label="Search mobile"
@@ -128,9 +128,9 @@ export function HomeNavbar() {
             <button
               type="button"
               aria-label="Search"
-              className="grid h-full w-11 place-items-center bg-[#a4a6a9] text-white"
+              className="grid h-full w-10 place-items-center bg-[#a4a6a9] text-white sm:w-11"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
         </div>

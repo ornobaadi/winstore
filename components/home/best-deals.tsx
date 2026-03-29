@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { truncateText } from "@/lib/utils"
@@ -29,9 +29,59 @@ function formatTabLabel(name: string) {
 }
 
 export function BestDeals({ categories, productsByCategory }: BestDealsProps) {
+  const tabsRef = useRef<HTMLDivElement>(null)
   const [activeCategory, setActiveCategory] = useState<string>(
     categories[0]?.name ?? "",
   )
+  const [showTabArrows, setShowTabArrows] = useState(false)
+  const [canScrollTabsLeft, setCanScrollTabsLeft] = useState(false)
+  const [canScrollTabsRight, setCanScrollTabsRight] = useState(false)
+
+  const updateTabsState = useCallback(() => {
+    const tabs = tabsRef.current
+    if (!tabs) return
+
+    const overflow = tabs.scrollWidth > tabs.clientWidth + 1
+    setShowTabArrows(overflow)
+
+    if (!overflow) {
+      setCanScrollTabsLeft(false)
+      setCanScrollTabsRight(false)
+      return
+    }
+
+    setCanScrollTabsLeft(tabs.scrollLeft > 1)
+    setCanScrollTabsRight(tabs.scrollLeft + tabs.clientWidth < tabs.scrollWidth - 1)
+  }, [])
+
+  useEffect(() => {
+    const tabs = tabsRef.current
+    if (!tabs) return
+
+    updateTabsState()
+
+    const handleScroll = () => updateTabsState()
+    tabs.addEventListener("scroll", handleScroll)
+
+    const observer = new ResizeObserver(() => updateTabsState())
+    observer.observe(tabs)
+
+    return () => {
+      tabs.removeEventListener("scroll", handleScroll)
+      observer.disconnect()
+    }
+  }, [categories, updateTabsState])
+
+  const scrollTabs = (direction: "left" | "right") => {
+    const tabs = tabsRef.current
+    if (!tabs) return
+
+    const amount = Math.max(120, Math.floor(tabs.clientWidth * 0.35))
+    tabs.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    })
+  }
 
   const activeProducts = useMemo(() => {
     if (!activeCategory) return []
@@ -39,16 +89,19 @@ export function BestDeals({ categories, productsByCategory }: BestDealsProps) {
   }, [activeCategory, productsByCategory])
 
   return (
-    <section className="bg-(--winstore-page-bg) py-8 lg:py-10">
+    <section className="overflow-x-hidden bg-(--winstore-page-bg) py-8 lg:py-10">
       <div className="mx-auto w-full max-w-11/12 px-4 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4 lg:mb-8">
-          <h2 className="text-[34px] leading-none font-light text-[#151515] lg:text-[46px]">
+        <div className="mb-6 flex flex-col items-start gap-3 overflow-hidden lg:mb-8 lg:flex-row lg:items-end lg:justify-between">
+          <h2 className="text-[30px] leading-none font-light text-[#151515] lg:text-[42px]">
             <span className="font-normal text-[#17b2c0]">Best</span>{" "}
             <span className="font-normal text-[#1e1e1e]">Deals</span>
           </h2>
 
-          <div className="flex items-center gap-4">
-            <div className="scrollbar-none flex max-w-full items-center gap-7 overflow-x-auto whitespace-nowrap text-[15px] font-semibold tracking-wide text-[#252525] lg:text-[34px]">
+          <div className="flex w-full min-w-0 items-center gap-2 lg:w-auto lg:gap-4">
+            <div
+              ref={tabsRef}
+              className="scrollbar-none flex w-full min-w-0 items-center gap-3 overflow-x-auto whitespace-nowrap pb-1 pr-1 text-[12px] font-semibold tracking-wide text-[#252525] sm:gap-4 sm:text-[13px] lg:w-auto lg:max-w-full lg:gap-6 lg:text-[18px]"
+            >
               {categories.map((category) => {
                 const isActive = category.name === activeCategory
 
@@ -57,7 +110,7 @@ export function BestDeals({ categories, productsByCategory }: BestDealsProps) {
                     key={category.id}
                     type="button"
                     onClick={() => setActiveCategory(category.name)}
-                    className={`border-b-3 pb-1 transition ${
+                    className={`shrink-0 border-b-3 pb-1 transition ${
                       isActive
                         ? "border-[#17b2c0] text-[#17b2c0]"
                         : "border-transparent hover:text-[#17b2c0]"
@@ -69,14 +122,34 @@ export function BestDeals({ categories, productsByCategory }: BestDealsProps) {
               })}
             </div>
 
-            <div className="hidden items-center gap-1 text-black/60 lg:flex">
-              <ChevronLeft className="h-5 w-5" />
-              <ChevronRight className="h-5 w-5" />
-            </div>
+            {showTabArrows && (
+              <div className="hidden shrink-0 items-center gap-1 text-black/60 lg:flex">
+                {canScrollTabsLeft && (
+                  <button
+                    type="button"
+                    aria-label="Scroll categories left"
+                    onClick={() => scrollTabs("left")}
+                    className="rounded p-1 hover:bg-black/5"
+                  >
+                    <ChevronLeft className="h-4 w-4 lg:h-5 lg:w-5" />
+                  </button>
+                )}
+                {canScrollTabsRight && (
+                  <button
+                    type="button"
+                    aria-label="Scroll categories right"
+                    onClick={() => scrollTabs("right")}
+                    className="rounded p-1 hover:bg-black/5"
+                  >
+                    <ChevronRight className="h-4 w-4 lg:h-5 lg:w-5" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
           {activeProducts.slice(0, 12).map((product) => {
             const currentPrice = product.price.toFixed(2)
             const previousPrice = (product.price + 5).toFixed(2)
@@ -84,39 +157,39 @@ export function BestDeals({ categories, productsByCategory }: BestDealsProps) {
             return (
               <article
                 key={product.id}
-                className="border border-[#cfcfcf] bg-white px-4 pt-3 pb-4"
+                className="min-w-0 border border-[#cfcfcf] bg-white px-2.5 pt-2.5 pb-3 sm:px-3 sm:pt-3 lg:px-4 lg:pb-4"
               >
-                <p className="text-[15px] leading-tight text-[#3d3d3d]">
+                <p className="text-[11px] leading-tight text-[#3d3d3d] sm:text-[12px] lg:text-[13px]">
                   Bin Bakar Electronics
                 </p>
 
-                <h3 className="mt-3 text-[16px] leading-tight font-medium text-[#0f5f68]">
+                <h3 className="mt-2 text-[12px] leading-snug font-medium break-words text-[#0f5f68] sm:mt-2.5 sm:text-[14px] lg:text-[16px] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
                   {truncateText(product.title, 23)}
                 </h3>
 
-                <div className="relative mt-3 h-35">
+                <div className="relative mt-2 h-24 sm:mt-2.5 sm:h-28 lg:h-35">
                   <Image
                     src={product.image}
                     alt={product.title}
                     fill
                     unoptimized
-                    sizes="(max-width: 1280px) 50vw, 20vw"
+                    sizes="(max-width: 520px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 16vw"
                     className="object-contain"
                   />
                 </div>
 
-                <div className="mt-4 flex items-center gap-3 text-[18px]">
-                  <span className="text-[18px] leading-none text-[#8a8a8a] line-through">
+                <div className="mt-3 flex items-center gap-1.5 sm:gap-2.5">
+                  <span className="text-[11px] leading-none text-[#8a8a8a] line-through sm:text-[13px] lg:text-[15px]">
                     ${previousPrice}
                   </span>
-                  <span className="text-[18px] leading-none text-[#00aeba]">
+                  <span className="text-[16px] leading-none text-[#00aeba] sm:text-[19px] lg:text-[24px]">
                     ${currentPrice}
                   </span>
                 </div>
 
                 <button
                   type="button"
-                  className="mt-4 h-11 w-full bg-[#1ca6ae] text-[18px] font-normal text-white transition hover:bg-[#168f96]"
+                  className="mt-3 h-8.5 w-full bg-[#1ca6ae] text-[14px] font-normal text-white transition hover:bg-[#168f96] sm:h-9 sm:text-[15px] lg:h-10 lg:text-[18px]"
                 >
                   Add to cart
                 </button>
