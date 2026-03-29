@@ -44,3 +44,28 @@ export async function getAllProducts(): Promise<Product[]> {
     return []
   }
 }
+
+export async function getProductsByCategory(category: string): Promise<Product[]> {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/products/category/${encodeURIComponent(category)}`,
+      {
+        next: { revalidate: 60 },
+      },
+    )
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const payload = (await response.json()) as ProductsResponse
+    if (!payload.success || !Array.isArray(payload.data)) {
+      throw new Error(payload.message || "Invalid category products response")
+    }
+
+    return [...payload.data].sort((a, b) => b.id - a.id)
+  } catch (error) {
+    console.error("[getProductsByCategory]", error)
+    return []
+  }
+}

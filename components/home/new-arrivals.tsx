@@ -49,10 +49,10 @@ export function NewArrivals({ products }: { products: Product[] }) {
                 </div>
 
                 <div className="mt-4 flex items-center gap-3 text-[18px]">
-                  <span className="text-[18px] leading-none text-[#8a8a8a] line-through">
+                  <span className="text-[24px] leading-none text-[#8a8a8a] line-through">
                     ${previousPrice}
                   </span>
-                  <span className="text-[18px] leading-none text-[#00aeba]">
+                  <span className="text-[31px] leading-none text-[#00aeba]">
                     ${currentPrice}
                   </span>
                 </div>

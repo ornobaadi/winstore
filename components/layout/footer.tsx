@@ -1,0 +1,133 @@
+import Image from "next/image"
+import Link from "next/link"
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa"
+
+const trendingLinks = [
+  "Installments",
+  "Electronics",
+  "Grocery",
+  "Health & Beauty",
+  "Home Appliances",
+  "Mobile Accessories",
+]
+
+const informationLinks = [
+  "About Us",
+  "Contact Us",
+  "FAQs",
+  "Shipping & Return",
+  "Privacy policy",
+  "Terms & Conditions",
+]
+
+const customerCareLinks = [
+  "My Account",
+  "Track Your Order",
+  "Recently Viewed",
+  "Wishlist",
+  "Compare",
+  "Become a Vendor",
+]
+
+export function Footer() {
+  return (
+    <footer className="mt-8 bg-[#36393f] text-white lg:mt-10">
+      <div className="mx-auto w-full max-w-11/12 px-4 py-10 lg:px-8 lg:py-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-[1.15fr_1fr_1fr_1fr] lg:gap-10">
+          <div>
+            <Image
+              src="/logo.png"
+              alt="Winstore"
+              width={170}
+              height={52}
+              className="h-11 w-auto"
+            />
+
+            <p className="mt-4 text-[24px] leading-tight font-medium text-[#10c4d1]">
+              Got questions? Call us 24/7!
+            </p>
+            <p className="mt-2 text-[16px] leading-tight text-[#efefef]">
+              03 111 666 144
+              <br />
+              0317 1777015.
+            </p>
+
+            <p className="mt-5 text-[24px] leading-tight font-medium text-[#10c4d1]">
+              Contact info
+            </p>
+            <p className="mt-1 text-[18px] leading-tight text-[#efefef]">info@winstore.pk</p>
+
+            <div className="mt-4 flex items-center gap-5 text-[#f1f1f1]">
+              <Link href="#" aria-label="Facebook" className="transition hover:text-white/80">
+                <FaFacebookF className="h-7 w-7" />
+              </Link>
+              <Link href="#" aria-label="Twitter" className="transition hover:text-white/80">
+                <FaTwitter className="h-7 w-7" />
+              </Link>
+              <Link href="#" aria-label="LinkedIn" className="transition hover:text-white/80">
+                <FaLinkedinIn className="h-7 w-7" />
+              </Link>
+              <Link href="#" aria-label="Instagram" className="transition hover:text-white/80">
+                <FaInstagram className="h-7 w-7" />
+              </Link>
+            </div>
+          </div>
+
+          <FooterColumn title="Trending" links={trendingLinks} />
+          <FooterColumn title="Information" links={informationLinks} />
+
+          <div>
+            <h3 className="text-[24px] leading-tight font-medium text-[#10c4d1]">Customer Care</h3>
+            <ul className="mt-4 space-y-2 text-[16px] leading-tight text-[#ececec]">
+              {customerCareLinks.map((item) => (
+                <li key={item}>
+                  <Link href="#" className="transition hover:text-white">
+                    {item}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 grid grid-cols-2 gap-2.5">
+              <PaymentBadge label="VISA" className="text-[#1f57a3]" />
+              <PaymentBadge label="MasterCard" className="text-[#e24329]" />
+              <PaymentBadge label="CASH" className="text-[#3f3f3f]" />
+              <PaymentBadge label="EASY PLAN" className="text-[#2a87bf]" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#101117] py-4">
+        <div className="mx-auto w-full max-w-11/12 px-4 lg:px-8">
+          <p className="text-[16px] text-[#efefef]">© 2021 Winstore. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+function FooterColumn({ title, links }: { title: string; links: string[] }) {
+  return (
+    <div>
+      <h3 className="text-[24px] leading-tight font-medium text-[#10c4d1]">{title}</h3>
+      <ul className="mt-4 space-y-2 text-[16px] leading-tight text-[#ececec]">
+        {links.map((item) => (
+          <li key={item}>
+            <Link href="#" className="transition hover:text-white">
+              {item}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function PaymentBadge({ label, className }: { label: string; className: string }) {
+  return (
+    <div className="grid h-13 place-items-center rounded-md bg-white px-3">
+      <span className={`text-[14px] font-semibold ${className}`}>{label}</span>
+    </div>
+  )
+}
