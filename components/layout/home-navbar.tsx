@@ -33,7 +33,7 @@ export function HomeNavbar() {
   return (
     <header className="w-full border-b border-(--winstore-border) shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
       <div className="bg-(--winstore-nav-top) text-white">
-        <div className="mx-auto flex max-w-11/12 w-full items-center gap-6 px-4 py-2 lg:px-8">
+        <div className="mx-auto flex w-full max-w-11/12 items-center gap-6 px-4 py-2 lg:px-8">
           <div className="shrink-0">
             <a
               href="#"
@@ -86,11 +86,19 @@ export function HomeNavbar() {
               <p className="mt-1 text-lg font-light">Sign In</p>
             </div>
 
-            <button type="button" aria-label="Profile" className="text-white/95">
+            <button
+              type="button"
+              aria-label="Profile"
+              className="text-white/95"
+            >
               <UserRound className="h-7 w-7" strokeWidth={1.8} />
             </button>
 
-            <button type="button" aria-label="Wishlist" className="text-white/95">
+            <button
+              type="button"
+              aria-label="Wishlist"
+              className="text-white/95"
+            >
               <Heart className="h-7 w-7" strokeWidth={1.8} />
             </button>
 
@@ -99,19 +107,25 @@ export function HomeNavbar() {
               aria-label="Cart"
               className="relative flex items-center gap-2 text-white/95"
             >
-              <span className="absolute -top-2 left-3 text-sm font-semibold text-(--winstore-cart-count)">
-                
-              </span>
+              <span className="absolute -top-2 left-3 text-sm font-semibold text-(--winstore-cart-count)"></span>
               <ShoppingCart className="h-7 w-7" strokeWidth={1.8} />
               <span className="text-2xl font-light">Cart</span>
             </button>
           </div>
 
           <div className="ml-auto flex items-center gap-3 lg:hidden">
-            <button type="button" aria-label="Open menu" className="rounded-md p-2 hover:bg-white/10">
+            <button
+              type="button"
+              aria-label="Open menu"
+              className="rounded-md p-2 hover:bg-white/10"
+            >
               <Menu className="h-6 w-6" />
             </button>
-            <button type="button" aria-label="Cart" className="rounded-md p-2 hover:bg-white/10">
+            <button
+              type="button"
+              aria-label="Cart"
+              className="rounded-md p-2 hover:bg-white/10"
+            >
               <ShoppingCart className="h-6 w-6" />
             </button>
           </div>
@@ -137,20 +151,22 @@ export function HomeNavbar() {
       </div>
 
       <div className="bg-(--winstore-nav-bottom) text-white">
-        <div className="mx-auto hidden max-w-11/12 w-full items-center justify-between px-4 py-4 lg:flex lg:px-8">
+        <div className="mx-auto hidden w-full max-w-11/12 items-center justify-between px-4 py-4 lg:flex lg:px-8">
           <div className="flex items-center gap-10">
             <button
               type="button"
-              className="flex items-end gap-4 text-xl font-light leading-tight"
+              className="flex items-end gap-4 text-xl leading-tight font-light"
             >
               <Menu className="h-6 w-6" />
-              <span>
-                Browse By Category
-              </span>
+              <span>Browse By Category</span>
             </button>
             <nav aria-label="Primary" className="flex items-center gap-12">
               {topLinks.map((link) => (
-                <a key={link} href="#" className="text-xl font-light transition hover:text-white/80">
+                <a
+                  key={link}
+                  href="#"
+                  className="text-xl font-light transition hover:text-white/80"
+                >
                   {link}
                 </a>
               ))}
