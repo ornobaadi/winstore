@@ -1,7 +1,7 @@
 # PRD — WinStore E-Commerce (Next.js Assessment)
 
 > **Status:** Draft v1.0  
-> **Stack:** Next.js 15+ · App Router · TypeScript · Tailwind CSS · Server Actions  
+> **Stack:** Next.js 16+ · App Router · TypeScript · Tailwind CSS · Server Actions  
 > **Deadline:** Per assessment brief  
 > **APIs:** `https://mm-assesment-server.vercel.app/api/v1`
 
@@ -14,7 +14,7 @@ Build a pixel-perfect, production-quality e-commerce storefront based on the pro
 ### Goals
 - Reproduce the WinStore UI faithfully (layout, colours, typography, spacing, responsiveness)
 - Integrate all four API endpoints cleanly via **Server Actions only**
-- Demonstrate mastery of Next.js 15 App Router patterns (RSC, streaming, caching)
+- Demonstrate mastery of Next.js 16 App Router patterns (RSC, streaming, caching)
 - Submit a clean, well-documented GitHub repo + live Vercel deployment
 
 ---
@@ -470,7 +470,7 @@ Open http://localhost:3000
 
 ## Architecture
 
-- **Framework:** Next.js 15 (App Router)
+- **Framework:** Next.js 16 (App Router)
 - **API Layer:** All calls go through Server Actions in `src/actions/`
 - **Rendering:** Server Components by default; Client Components only for carousel, tabs, search input, and add-to-cart button
 - **Caching:** Next.js fetch cache with per-endpoint revalidation (60s for products, 3600s for categories)

@@ -80,6 +80,17 @@
     --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
     --sidebar-border: oklch(0.925 0.005 214.3);
     --sidebar-ring: oklch(0.723 0.014 214.4);
+
+    /* WinStore design primitives */
+    --winstore-page-bg: #e9e9e9;
+    --winstore-nav-top: #00545a;
+    --winstore-nav-bottom: #01484d;
+    --winstore-border: #d7d7d7;
+    --winstore-search-button: #a4a6a9;
+    --winstore-search-button-hover: #8e9093;
+    --winstore-cart-count: #f7d83a;
+    --winstore-input-muted: #6f6f6f;
+    --winstore-input-placeholder: #9aa0a6;
 }
 
 .dark {
