@@ -12,3 +12,18 @@ export function truncateText(text: string, maxLength: number) {
 
   return `${text.slice(0, maxLength - 2)}..`
 }
+
+export function formatPrice(value: number, currency = "$") {
+  return `${currency}${value.toFixed(2)}`
+}
+
+export function calculateOriginalPrice(price: number) {
+  return Math.round(price * 1.2 * 100) / 100
+}
+
+export function formatCategoryName(value: string) {
+  return value
+    .split(" ")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ")
+}

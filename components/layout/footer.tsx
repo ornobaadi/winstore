@@ -1,32 +1,20 @@
 import Image from "next/image"
-import Link from "next/link"
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa"
+import {
+  FOOTER_CUSTOMER_CARE_LINKS,
+  FOOTER_INFORMATION_LINKS,
+  FOOTER_TRENDING_LINKS,
+} from "@/constants"
 
-const trendingLinks = [
-  "Installments",
-  "Electronics",
-  "Grocery",
-  "Health & Beauty",
-  "Home Appliances",
-  "Mobile Accessories",
-]
+const trendingLinks = FOOTER_TRENDING_LINKS
+const informationLinks = FOOTER_INFORMATION_LINKS
+const customerCareLinks = FOOTER_CUSTOMER_CARE_LINKS
 
-const informationLinks = [
-  "About Us",
-  "Contact Us",
-  "FAQs",
-  "Shipping & Return",
-  "Privacy policy",
-  "Terms & Conditions",
-]
-
-const customerCareLinks = [
-  "My Account",
-  "Track Your Order",
-  "Recently Viewed",
-  "Wishlist",
-  "Compare",
-  "Become a Vendor",
+const socialLinks = [
+  { label: "Facebook", href: "https://www.facebook.com", icon: FaFacebookF },
+  { label: "Twitter", href: "https://x.com", icon: FaTwitter },
+  { label: "LinkedIn", href: "https://www.linkedin.com", icon: FaLinkedinIn },
+  { label: "Instagram", href: "https://www.instagram.com", icon: FaInstagram },
 ]
 
 export function Footer() {
@@ -58,18 +46,18 @@ export function Footer() {
             <p className="mt-1 text-[18px] leading-tight text-[#efefef]">info@winstore.pk</p>
 
             <div className="mt-4 flex items-center gap-5 text-[#f1f1f1]">
-              <Link href="#" aria-label="Facebook" className="transition hover:text-white/80">
-                <FaFacebookF className="h-7 w-7" />
-              </Link>
-              <Link href="#" aria-label="Twitter" className="transition hover:text-white/80">
-                <FaTwitter className="h-7 w-7" />
-              </Link>
-              <Link href="#" aria-label="LinkedIn" className="transition hover:text-white/80">
-                <FaLinkedinIn className="h-7 w-7" />
-              </Link>
-              <Link href="#" aria-label="Instagram" className="transition hover:text-white/80">
-                <FaInstagram className="h-7 w-7" />
-              </Link>
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  aria-label={social.label}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition hover:text-white/80"
+                >
+                  <social.icon className="h-7 w-7" />
+                </a>
+              ))}
             </div>
           </div>
 
@@ -80,11 +68,7 @@ export function Footer() {
             <h3 className="text-[24px] leading-tight font-medium text-[#10c4d1]">Customer Care</h3>
             <ul className="mt-4 space-y-2 text-[16px] leading-tight text-[#ececec]">
               {customerCareLinks.map((item) => (
-                <li key={item}>
-                  <Link href="#" className="transition hover:text-white">
-                    {item}
-                  </Link>
-                </li>
+                <li key={item}>{item}</li>
               ))}
             </ul>
           </div>
@@ -135,11 +119,7 @@ function FooterColumn({ title, links }: { title: string; links: string[] }) {
       <h3 className="text-[24px] leading-tight font-medium text-[#10c4d1]">{title}</h3>
       <ul className="mt-4 space-y-2 text-[16px] leading-tight text-[#ececec]">
         {links.map((item) => (
-          <li key={item}>
-            <Link href="#" className="transition hover:text-white">
-              {item}
-            </Link>
-          </li>
+          <li key={item}>{item}</li>
         ))}
       </ul>
     </div>

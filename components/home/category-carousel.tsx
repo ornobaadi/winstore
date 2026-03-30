@@ -1,30 +1,12 @@
 "use client"
 
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-type Category = {
-  id: number
-  name: string
-}
-
-const categoryImageMap: Record<string, string> = {
-  electronics:
-    "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?q=80&w=1326&auto=format&fit=crop",
-  jewelery:
-    "https://images.unsplash.com/photo-1633934542430-0905ccb5f050?q=80&w=1025&auto=format&fit=crop",
-  "men's clothing":
-    "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1200&q=80",
-  "women's clothing":
-    "https://images.unsplash.com/photo-1753161024053-4ef8b6237973?q=80&w=1631&auto=format&fit=crop",
-}
-
-function formatCategoryName(value: string) {
-  return value
-    .split(" ")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ")
-}
+import { CATEGORY_IMAGE_MAP } from "@/constants"
+import type { Category } from "@/types"
+import { formatCategoryName } from "@/lib/utils"
 
 export function CategoryCarousel({ categories }: { categories: Category[] }) {
   const trackRef = useRef<HTMLDivElement>(null)
@@ -99,12 +81,12 @@ export function CategoryCarousel({ categories }: { categories: Category[] }) {
           {categories.map((category) => (
             <article
               key={category.id}
-              className="group relative min-h-45 min-w-70 flex-1 snap-start overflow-hidden border border-[#e8e8e8] bg-white shadow-[0_10px_24px_rgba(0,0,0,0.12)] lg:min-h-[250px] lg:min-w-[360px]"
+              className="group relative min-h-45 min-w-70 flex-1 snap-start overflow-hidden border border-[#e8e8e8] bg-white shadow-[0_10px_24px_rgba(0,0,0,0.12)] lg:min-h-62.5 lg:min-w-90"
             >
               <div
                 className="absolute inset-0 bg-cover bg-center transition duration-300 group-hover:scale-[1.03]"
                 style={{
-                  backgroundImage: `url(${categoryImageMap[category.name] ?? categoryImageMap.electronics})`,
+                  backgroundImage: `url(${CATEGORY_IMAGE_MAP[category.name] ?? CATEGORY_IMAGE_MAP.electronics})`,
                 }}
               />
 
@@ -112,12 +94,12 @@ export function CategoryCarousel({ categories }: { categories: Category[] }) {
                 <h3 className="text-xl font-medium leading-tight lg:text-2xl">
                   {formatCategoryName(category.name)}
                 </h3>
-                <button
-                  type="button"
+                <Link
+                  href={`/category/${encodeURIComponent(category.name)}`}
                   className="text-xl font-light text-[#20a7d9] transition hover:text-[#188cba] lg:text-2xl"
                 >
                   Shop
-                </button>
+                </Link>
               </div>
             </article>
           ))}

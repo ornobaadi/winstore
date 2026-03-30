@@ -1,23 +1,11 @@
 "use server"
 
-type Category = {
-  id: number
-  name: string
-}
-
-type CategoriesResponse = {
-  success: boolean
-  message: string
-  data: Category[]
-}
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "https://mm-assesment-server.vercel.app/api/v1"
+import { API_BASE_URL } from "@/constants"
+import type { ApiResponse, Category } from "@/types"
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    const response = await fetch(`${BASE_URL}/products/categories`, {
+    const response = await fetch(`${API_BASE_URL}/products/categories`, {
       next: { revalidate: 3600 },
     })
 
@@ -25,7 +13,7 @@ export async function getCategories(): Promise<Category[]> {
       throw new Error(`HTTP ${response.status}`)
     }
 
-    const payload = (await response.json()) as CategoriesResponse
+    const payload = (await response.json()) as ApiResponse<Category[]>
     if (!payload.success || !Array.isArray(payload.data)) {
       throw new Error(payload.message || "Invalid categories response")
     }
