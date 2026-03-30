@@ -81,10 +81,27 @@ No client component performs remote `fetch`/`axios` calls.
 
 ## Deployment
 
-Vercel URL: Pending deployment (add your live URL here before submission).
+- Live URL: https://winstore-kohl.vercel.app/
+- GitHub Repository: https://github.com/ornobaadi/winstore
 
 ## Responsive Notes
 
 - Navbar and secondary links are mobile-friendly with hamburger toggle behavior.
 - Category and New Arrivals use horizontal carousel interactions with contextual arrows.
 - Product detail related items use mobile-first single-column layout for cleaner odd/even behavior.
+
+## SEO
+
+- Global SEO metadata is configured via Next.js Metadata API in `app/layout.tsx`.
+- Route-level metadata is configured for home, product detail, category, and utility pages.
+- Dynamic metadata is generated for product and category routes.
+
+## Final Compliance Audit
+
+- App Router only: implemented under `app/`
+- Server actions only for remote API calls: implemented under `actions/`
+- No client-side `fetch`/`axios`: verified in component files
+- New Arrivals limited to 10: implemented on home page
+- Best Deals tab switching via `useTransition` + server action: implemented
+- Product and category routes: implemented and linked
+- Loading/error/not-found states: implemented

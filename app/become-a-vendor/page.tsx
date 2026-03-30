@@ -1,4 +1,11 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Become a Vendor",
+  description:
+    "Apply to become a WinStore vendor and grow your product reach with our marketplace platform.",
+}
 
 export default function BecomeVendorPage() {
   return (

@@ -1,9 +1,17 @@
+import type { Metadata } from "next"
+
 import { HeroBanner } from "@/components/home/hero-banner"
 import { CategoryCarousel } from "@/components/home/category-carousel"
 import { NewArrivals } from "@/components/home/new-arrivals"
 import { BestDeals } from "@/components/home/best-deals"
 import { getCategories } from "@/actions/category.actions"
 import { getAllProducts, getProductsByCategory } from "@/actions/product.actions"
+
+export const metadata: Metadata = {
+  title: "Home | WinStore",
+  description:
+    "Discover WinStore latest arrivals, category picks, and best deals across electronics, jewelery, and fashion.",
+}
 
 export default async function Page() {
   const [categories, products] = await Promise.all([

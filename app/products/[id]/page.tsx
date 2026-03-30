@@ -1,9 +1,11 @@
+import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { getProductById, getProductsByCategory } from "@/actions/product.actions"
 import { ProductGrid } from "@/components/product/product-grid"
+import { StarRating } from "@/components/product/star-rating"
 import { Badge } from "@/components/ui/badge"
 import { calculateOriginalPrice, formatPrice, truncateText } from "@/lib/utils"
 
@@ -11,6 +13,36 @@ type ProductPageProps = {
   params: Promise<{
     id: string
   }>
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { id } = await params
+  const productId = Number(id)
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return {
+      title: "Product Not Found",
+      description: "The requested product could not be found.",
+    }
+  }
+
+  try {
+    const product = await getProductById(productId)
+    return {
+      title: truncateText(product.title, 55),
+      description: truncateText(product.description, 150),
+      openGraph: {
+        title: truncateText(product.title, 55),
+        description: truncateText(product.description, 150),
+        images: [{ url: product.image, alt: product.title }],
+      },
+    }
+  } catch {
+    return {
+      title: "Product Not Found",
+      description: "The requested product could not be found.",
+    }
+  }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
@@ -56,7 +88,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
               src={product.image}
               alt={product.title}
               fill
-              unoptimized
               sizes="(max-width: 1024px) 100vw, 42vw"
               className="object-contain"
             />
@@ -69,9 +100,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.title}
             </h1>
 
-            <p className="mt-3 text-sm text-[#596066] lg:text-base">
-              Rating: {product.rating.rate} / 5 ({product.rating.count} reviews)
-            </p>
+            <StarRating rate={product.rating.rate} count={product.rating.count} />
 
             <div className="mt-4 flex items-end gap-3">
               <span className="text-xl text-[#8a8a8a] line-through lg:text-2xl">

@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 
 const featuredBrands = ["Samsung", "Apple", "Acer", "Sony", "LG", "Anker"]
+
+export const metadata: Metadata = {
+  title: "Shop by Brands",
+  description:
+    "Explore WinStore products by top brands including Samsung, Apple, Sony, LG, and more.",
+}
 
 export default function ShopByBrandsPage() {
   return (

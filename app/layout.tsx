@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Geist_Mono, Outfit } from "next/font/google"
 
 import "./globals.css"
@@ -12,6 +13,33 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://winstore-kohl.vercel.app"),
+  title: {
+    default: "WinStore | Modern Online Shopping",
+    template: "%s | WinStore",
+  },
+  description:
+    "WinStore is a modern e-commerce storefront for electronics, jewelery, and fashion with curated deals and product discovery.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "WinStore | Modern Online Shopping",
+    description:
+      "Browse categories, latest arrivals, and best deals across electronics, jewelery, and clothing.",
+    url: "https://winstore-kohl.vercel.app",
+    siteName: "WinStore",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WinStore | Modern Online Shopping",
+    description:
+      "Browse categories, latest arrivals, and best deals across electronics, jewelery, and clothing.",
+  },
+}
 
 export default function RootLayout({
   children,

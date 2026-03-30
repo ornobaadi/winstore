@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { getProductsByCategory } from "@/actions/product.actions"
@@ -9,6 +10,16 @@ type CategoryPageProps = {
   params: Promise<{
     name: string
   }>
+}
+
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { name } = await params
+  const categoryName = formatCategoryName(decodeURIComponent(name))
+
+  return {
+    title: `${categoryName} Products`,
+    description: `Browse ${categoryName} products available at WinStore with latest pricing and offers.`,
+  }
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
