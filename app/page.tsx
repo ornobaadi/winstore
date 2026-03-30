@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { BEST_DEALS_TABS } from "@/constants"
 import { HeroBanner } from "@/components/home/hero-banner"
 import { CategoryCarousel } from "@/components/home/category-carousel"
 import { NewArrivals } from "@/components/home/new-arrivals"
@@ -8,7 +9,7 @@ import { getCategories } from "@/actions/category.actions"
 import { getAllProducts, getProductsByCategory } from "@/actions/product.actions"
 
 export const metadata: Metadata = {
-  title: "Home | WinStore",
+  title: "Home",
   description:
     "Discover WinStore latest arrivals, category picks, and best deals across electronics, jewelery, and fashion.",
 }
@@ -20,7 +21,10 @@ export default async function Page() {
   ])
 
   const latestTenProducts = products.slice(0, 10)
-  const initialBestDealsCategory = categories[0]?.name ?? ""
+  const availableCategoryNames = new Set(categories.map((category) => category.name))
+  const initialBestDealsCategory =
+    BEST_DEALS_TABS.find((tab) => availableCategoryNames.has(tab.apiCategory))
+      ?.apiCategory ?? categories[0]?.name ?? ""
   const initialBestDealsProducts = initialBestDealsCategory
     ? await getProductsByCategory(initialBestDealsCategory)
     : []

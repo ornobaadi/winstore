@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import { Geist_Mono, Outfit } from "next/font/google"
 
 import "./globals.css"
+import { getAllProducts } from "@/actions/product.actions"
+import { CartProvider } from "@/components/providers/cart-provider"
+import { ToastProvider } from "@/components/providers/toast-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { HomeNavbar } from "@/components/layout/home-navbar"
 import { Footer } from "@/components/layout/footer"
@@ -41,11 +44,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const searchableProducts = await getAllProducts()
+
   return (
     <html
       lang="en"
@@ -54,9 +59,13 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <HomeNavbar />
-          {children}
-          <Footer />
+          <ToastProvider>
+            <CartProvider>
+              <HomeNavbar searchableProducts={searchableProducts} />
+              {children}
+              <Footer />
+            </CartProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

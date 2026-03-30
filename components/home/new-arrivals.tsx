@@ -60,7 +60,7 @@ export function NewArrivals({ products }: { products: Product[] }) {
   }
 
   return (
-    <section className="relative bg-(--winstore-page-bg) py-8 lg:py-10">
+    <section className="relative bg-white py-8 lg:py-16">
       <div className="mx-auto w-full max-w-11/12 px-4 lg:px-8">
         <SectionHeader accent="New" neutral="Arrivals" className="mb-5 lg:mb-7" />
 

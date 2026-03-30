@@ -46,7 +46,7 @@ export function ProductCard({
       </Link>
 
       <PriceTag price={product.price} />
-      {showAddToCart ? <AddToCartButton /> : null}
+      {showAddToCart ? <AddToCartButton product={product} /> : null}
     </article>
   )
 }

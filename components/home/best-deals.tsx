@@ -1,8 +1,9 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+import { BEST_DEALS_TABS } from "@/constants"
 import { getProductsByCategory } from "@/actions/product.actions"
 import { ProductGrid } from "@/components/product/product-grid"
 import { SectionHeader } from "@/components/ui/section-header"
@@ -13,20 +14,25 @@ type BestDealsProps = {
   initialProducts: Product[]
 }
 
-function formatTabLabel(name: string) {
-  return name.toUpperCase()
-}
-
 export function BestDeals({ categories, initialProducts }: BestDealsProps) {
+  const dealTabs = useMemo(() => {
+    const availableNames = new Set(categories.map((category) => category.name))
+    return BEST_DEALS_TABS.filter((tab) => availableNames.has(tab.apiCategory))
+  }, [categories])
+
+  const defaultCategory = dealTabs[0]?.apiCategory ?? categories[0]?.name ?? ""
+
   const tabsRef = useRef<HTMLDivElement>(null)
-  const [activeCategory, setActiveCategory] = useState<string>(
-    categories[0]?.name ?? "",
-  )
+  const [selectedCategory, setSelectedCategory] = useState<string>(defaultCategory)
   const [products, setProducts] = useState<Product[]>(initialProducts)
   const [isPending, startTransition] = useTransition()
   const [showTabArrows, setShowTabArrows] = useState(false)
   const [canScrollTabsLeft, setCanScrollTabsLeft] = useState(false)
   const [canScrollTabsRight, setCanScrollTabsRight] = useState(false)
+
+  const activeCategory = dealTabs.some((tab) => tab.apiCategory === selectedCategory)
+    ? selectedCategory
+    : defaultCategory
 
   const updateTabsState = useCallback(() => {
     const tabs = tabsRef.current
@@ -79,7 +85,7 @@ export function BestDeals({ categories, initialProducts }: BestDealsProps) {
       return
     }
 
-    setActiveCategory(categoryName)
+    setSelectedCategory(categoryName)
 
     startTransition(async () => {
       const nextProducts = await getProductsByCategory(categoryName)
@@ -88,7 +94,7 @@ export function BestDeals({ categories, initialProducts }: BestDealsProps) {
   }
 
   return (
-    <section className="overflow-x-hidden bg-(--winstore-page-bg) py-8 lg:py-10">
+    <section className="overflow-x-hidden bg-white py-8 lg:py-10">
       <div className="mx-auto w-full max-w-11/12 px-4 lg:px-8">
         <div className="mb-6 flex flex-col items-start gap-3 overflow-hidden lg:mb-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHeader accent="Best" neutral="Deals" />
@@ -98,14 +104,14 @@ export function BestDeals({ categories, initialProducts }: BestDealsProps) {
               ref={tabsRef}
               className="scrollbar-none flex w-full min-w-0 items-center gap-3 overflow-x-auto whitespace-nowrap pb-1 pr-1 text-[12px] font-semibold tracking-wide text-[#252525] sm:gap-4 sm:text-[13px] lg:w-auto lg:max-w-full lg:gap-6 lg:text-[18px]"
             >
-              {categories.map((category) => {
-                const isActive = category.name === activeCategory
+              {dealTabs.map((tab) => {
+                const isActive = tab.apiCategory === activeCategory
 
                 return (
                   <button
-                    key={category.id}
+                    key={tab.apiCategory}
                     type="button"
-                    onClick={() => handleTabChange(category.name)}
+                    onClick={() => handleTabChange(tab.apiCategory)}
                     disabled={isPending}
                     className={`shrink-0 border-b-3 pb-1 transition ${
                       isActive
@@ -113,7 +119,7 @@ export function BestDeals({ categories, initialProducts }: BestDealsProps) {
                         : "border-transparent hover:text-[#17b2c0]"
                     }`}
                   >
-                    {formatTabLabel(category.name)}
+                    {tab.label}
                   </button>
                 )
               })}

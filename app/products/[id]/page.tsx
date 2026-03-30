@@ -4,6 +4,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { getProductById, getProductsByCategory } from "@/actions/product.actions"
+import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { ProductGrid } from "@/components/product/product-grid"
 import { StarRating } from "@/components/product/star-rating"
 import { Badge } from "@/components/ui/badge"
@@ -115,12 +116,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.description}
             </p>
 
-            <button
-              type="button"
-              className="mt-6 h-11 rounded-md bg-[#1ca6ae] px-8 text-base text-white transition hover:bg-[#168f96]"
-            >
-              Add to cart
-            </button>
+            <AddToCartButton product={product} className="mt-6 w-auto px-8" />
           </div>
         </section>
 

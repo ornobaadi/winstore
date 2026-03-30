@@ -84,11 +84,29 @@ No client component performs remote `fetch`/`axios` calls.
 - Live URL: https://winstore-kohl.vercel.app/
 - GitHub Repository: https://github.com/ornobaadi/winstore
 
+## Design Reference
+
+- Figma: https://www.figma.com/design/UAQ0gFBqYduDOatXQqBJIY/E-commerce-web-site?node-id=0-1&t=axIG6ScXeXkDDxdG-1
+
 ## Responsive Notes
 
 - Navbar and secondary links are mobile-friendly with hamburger toggle behavior.
 - Category and New Arrivals use horizontal carousel interactions with contextual arrows.
 - Product detail related items use mobile-first single-column layout for cleaner odd/even behavior.
+
+## Pixel-Fit Validation
+
+- Desktop: header rows, hero block, category strip, New Arrivals, Best Deals, and footer structure aligned to reference hierarchy.
+- Tablet: product grids collapse to intermediate columns with preserved spacing rhythm.
+- Mobile: stacked flow verified for navbar controls, product sections, and detail/related product layouts.
+- Known intentional adaptation: Best Deals tab labels use API-category mapping (`ELECTRONICS`, `JEWELERY`, `MEN'S CLOTHING`, `WOMEN'S CLOTHING`) per assessment assumption.
+
+## Performance and Accessibility Validation
+
+- Production build passes (`npm run build`).
+- Product images use Next.js image optimization (removed remaining `unoptimized` overrides).
+- Product and category pages define route-level metadata for SEO and sharing previews.
+- Global metadata, OpenGraph, and Twitter card metadata configured in app layout.
 
 ## SEO
 
@@ -105,3 +123,14 @@ No client component performs remote `fetch`/`axios` calls.
 - Best Deals tab switching via `useTransition` + server action: implemented
 - Product and category routes: implemented and linked
 - Loading/error/not-found states: implemented
+
+## Final Submission Checklist
+
+- [x] Public GitHub repository link included
+- [x] Live Vercel URL included
+- [x] `.env.example` committed
+- [x] README includes setup instructions, architecture, assumptions
+- [x] App Router-only structure (no `pages/` directory)
+- [x] Server Actions-only remote API interactions
+- [x] Responsive behavior across mobile/tablet/desktop
+- [x] Error/loading/not-found states implemented
