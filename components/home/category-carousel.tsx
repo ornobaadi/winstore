@@ -79,8 +79,9 @@ export function CategoryCarousel({ categories }: { categories: Category[] }) {
           className="scrollbar-none flex snap-x snap-mandatory gap-5 overflow-x-auto lg:gap-7"
         >
           {categories.map((category) => (
-            <article
+            <Link
               key={category.id}
+              href={`/category/${encodeURIComponent(category.name)}`}
               className="group relative min-h-45 min-w-70 flex-1 snap-start overflow-hidden border border-[#e8e8e8] bg-white shadow-[0_10px_24px_rgba(0,0,0,0.12)] lg:min-h-62.5 lg:min-w-90"
             >
               <div
@@ -94,14 +95,11 @@ export function CategoryCarousel({ categories }: { categories: Category[] }) {
                 <h3 className="text-xl font-medium leading-tight lg:text-2xl">
                   {formatCategoryName(category.name)}
                 </h3>
-                <Link
-                  href={`/category/${encodeURIComponent(category.name)}`}
-                  className="text-xl font-light text-[#20a7d9] transition hover:text-[#188cba] lg:text-2xl"
-                >
+                <span className="text-xl font-light text-[#20a7d9] transition group-hover:text-[#188cba] lg:text-2xl">
                   Shop
-                </Link>
+                </span>
               </div>
-            </article>
+            </Link>
           ))}
 
           {categories.length === 0 && (

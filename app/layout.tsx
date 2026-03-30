@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Geist_Mono, Outfit } from "next/font/google"
 
 import "./globals.css"
+import { getCategories } from "@/actions/category.actions"
 import { getAllProducts } from "@/actions/product.actions"
 import { CartProvider } from "@/components/providers/cart-provider"
 import { ToastProvider } from "@/components/providers/toast-provider"
@@ -49,7 +50,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const searchableProducts = await getAllProducts()
+  const [searchableProducts, searchableCategories] = await Promise.all([
+    getAllProducts(),
+    getCategories(),
+  ])
 
   return (
     <html
@@ -61,7 +65,10 @@ export default async function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <CartProvider>
-              <HomeNavbar searchableProducts={searchableProducts} />
+              <HomeNavbar
+                searchableProducts={searchableProducts}
+                searchableCategories={searchableCategories}
+              />
               {children}
               <Footer />
             </CartProvider>

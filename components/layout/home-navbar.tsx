@@ -21,8 +21,8 @@ import {
 } from "react-icons/fa6"
 import { useCart } from "@/components/providers/cart-provider"
 import { NAV_SOCIALS, NAV_TOP_LINKS } from "@/constants"
-import { formatPrice, truncateText } from "@/lib/utils"
-import type { Product } from "@/types"
+import { formatCategoryName, formatPrice, truncateText } from "@/lib/utils"
+import type { Category, Product } from "@/types"
 
 const socialIcons = {
   facebook: FaFacebookF,
@@ -52,6 +52,10 @@ const socialHrefMap: Record<string, string> = {
   instagram: "https://www.instagram.com",
 }
 
+function normalizeText(value: string) {
+  return value.trim().toLowerCase()
+}
+
 function getBestRatedProducts(products: Product[]) {
   return [...products]
     .sort((a, b) => {
@@ -60,42 +64,80 @@ function getBestRatedProducts(products: Product[]) {
       }
       return b.rating.count - a.rating.count
     })
-    .slice(0, 3)
 }
 
 function getClosestProducts(products: Product[], query: string) {
-  const normalizedQuery = query.trim().toLowerCase()
+  const normalizedQuery = normalizeText(query)
   if (!normalizedQuery) {
-    return getBestRatedProducts(products)
+    return getBestRatedProducts(products).slice(0, 3)
   }
 
-  const ranked = products.map((product) => {
-    const title = product.title.toLowerCase()
-    const category = product.category.toLowerCase()
-    const description = product.description.toLowerCase()
+  const terms = normalizedQuery.split(/\s+/).filter(Boolean)
 
-    let score = product.rating.rate * 10
+  const ranked = products.map((product) => {
+    const title = normalizeText(product.title)
+    const category = normalizeText(product.category)
+    const description = normalizeText(product.description)
+
+    let score = 0
+    let matchedTerms = 0
 
     if (title === normalizedQuery) score += 1000
-    if (title.startsWith(normalizedQuery)) score += 700
+    if (title.startsWith(normalizedQuery)) score += 500
 
     const titleIndex = title.indexOf(normalizedQuery)
-    if (titleIndex >= 0) score += 300 - Math.min(titleIndex, 250)
+    if (titleIndex >= 0) score += 300 - Math.min(titleIndex, 220)
 
-    if (category.startsWith(normalizedQuery)) score += 240
-    if (category.includes(normalizedQuery)) score += 120
-    if (description.includes(normalizedQuery)) score += 60
+    if (category === normalizedQuery) score += 380
+    if (category.startsWith(normalizedQuery)) score += 260
+    if (category.includes(normalizedQuery)) score += 170
 
-    for (const word of title.split(" ")) {
-      if (word.startsWith(normalizedQuery)) {
-        score += 320
+    if (description.includes(normalizedQuery)) score += 70
+
+    for (const term of terms) {
+      if (term.length < 2) {
+        continue
+      }
+
+      if (title.includes(term)) {
+        score += 120
+        matchedTerms += 1
+        continue
+      }
+
+      if (category.includes(term)) {
+        score += 95
+        matchedTerms += 1
+        continue
+      }
+
+      if (description.includes(term)) {
+        score += 40
+        matchedTerms += 1
       }
     }
+
+    const hasDirectMatch =
+      title.includes(normalizedQuery) ||
+      category.includes(normalizedQuery) ||
+      description.includes(normalizedQuery)
+
+    if (!hasDirectMatch && matchedTerms === 0) {
+      return { product, score: 0 }
+    }
+
+    if (terms.length > 1 && matchedTerms < Math.ceil(terms.length / 2) && !hasDirectMatch) {
+      return { product, score: 0 }
+    }
+
+    score += product.rating.rate * 8
+    score += Math.min(product.rating.count, 1000) / 80
 
     return { product, score }
   })
 
   return ranked
+    .filter((entry) => entry.score > 0)
     .sort((a, b) => {
       if (b.score !== a.score) {
         return b.score - a.score
@@ -111,11 +153,14 @@ function getClosestProducts(products: Product[], query: string) {
 
 type HomeNavbarProps = {
   searchableProducts: Product[]
+  searchableCategories: Category[]
 }
 
-export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
+export function HomeNavbar({ searchableProducts, searchableCategories }: HomeNavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false)
   const [isDesktopSearchFocused, setIsDesktopSearchFocused] = useState(false)
   const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false)
   const [isMiniCartOpen, setIsMiniCartOpen] = useState(false)
@@ -125,6 +170,7 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
   const headerRef = useRef<HTMLDivElement>(null)
   const desktopSearchRef = useRef<HTMLDivElement>(null)
   const mobileSearchRef = useRef<HTMLDivElement>(null)
+  const categoryDropdownRef = useRef<HTMLDivElement>(null)
   const miniCartRef = useRef<HTMLDivElement>(null)
   const lastScrollYRef = useRef(0)
 
@@ -139,10 +185,31 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
   const visibleTotalItems = isHydrated ? totalItems : 0
   const visibleSubtotal = isHydrated ? subtotal : 0
 
+  const availableCategories = useMemo(() => {
+    if (searchableCategories.length > 0) {
+      return searchableCategories.map((category) => category.name)
+    }
+
+    return [...new Set(searchableProducts.map((product) => product.category))]
+  }, [searchableCategories, searchableProducts])
+
+  const filteredProducts = useMemo(() => {
+    if (selectedCategory === "all") {
+      return searchableProducts
+    }
+
+    return searchableProducts.filter((product) => product.category === selectedCategory)
+  }, [searchableProducts, selectedCategory])
+
   const suggestions = useMemo(
-    () => getClosestProducts(searchableProducts, searchQuery),
-    [searchQuery, searchableProducts],
+    () => getClosestProducts(filteredProducts, searchQuery),
+    [searchQuery, filteredProducts],
   )
+
+  const selectedCategoryLabel =
+    selectedCategory === "all" ? "All categories" : formatCategoryName(selectedCategory)
+
+  const shouldShowNoResults = searchQuery.trim().length > 0 && suggestions.length === 0
 
   useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
@@ -150,6 +217,7 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
 
       const clickedInsideDesktop = desktopSearchRef.current?.contains(target)
       const clickedInsideMobile = mobileSearchRef.current?.contains(target)
+      const clickedInsideCategoryDropdown = categoryDropdownRef.current?.contains(target)
       const clickedInsideMiniCart = miniCartRef.current?.contains(target)
 
       if (!clickedInsideDesktop && !clickedInsideMobile) {
@@ -159,6 +227,10 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
 
       if (!clickedInsideMiniCart) {
         setIsMiniCartOpen(false)
+      }
+
+      if (!clickedInsideCategoryDropdown) {
+        setIsCategoryDropdownOpen(false)
       }
     }
 
@@ -231,14 +303,59 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
 
           <div className="hidden min-w-0 shrink-0 items-center lg:flex lg:w-1/2">
             <div ref={desktopSearchRef} className="relative w-full">
-              <div className="flex h-12 w-full overflow-hidden rounded-md bg-white">
-                <button
-                  type="button"
-                  className="flex w-48 items-center justify-between border-r border-black/10 px-4 text-left text-base font-normal text-(--winstore-input-muted)"
-                >
-                  <span>All categories</span>
-                  <ChevronDown className="h-5 w-5 text-black/40" />
-                </button>
+              <div className="flex h-12 w-full rounded-md bg-white">
+                <div ref={categoryDropdownRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsCategoryDropdownOpen((prev) => !prev)}
+                    className="flex h-full w-52 items-center justify-between border-r border-black/10 px-4 text-left text-base font-normal text-(--winstore-input-muted)"
+                  >
+                    <span className="truncate">{selectedCategoryLabel}</span>
+                    <ChevronDown
+                      className={`h-5 w-5 text-black/40 transition-transform ${isCategoryDropdownOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {isCategoryDropdownOpen && (
+                    <div className="absolute top-full left-0 z-50 mt-1 w-60 rounded-md border border-black/10 bg-white p-1 shadow-[0_8px_30px_rgba(0,0,0,0.16)]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory("all")
+                          setIsCategoryDropdownOpen(false)
+                          setIsDesktopSearchFocused(true)
+                        }}
+                        className={`flex w-full items-center rounded px-3 py-2 text-left text-sm transition hover:bg-[#f4f6f8] ${selectedCategory === "all" ? "bg-[#eef6f7] text-[#0c6c72]" : "text-[#1f1f1f]"}`}
+                      >
+                        All categories
+                      </button>
+
+                      <div className="my-1 h-px bg-black/8" />
+
+                      <ul className="max-h-60 overflow-y-auto">
+                        {availableCategories.map((categoryName) => (
+                          <li key={categoryName}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedCategory(categoryName)
+                                setIsCategoryDropdownOpen(false)
+                                setIsDesktopSearchFocused(true)
+                              }}
+                              className={`flex w-full items-center rounded px-3 py-2 text-left text-sm transition hover:bg-[#f4f6f8] ${
+                                selectedCategory === categoryName
+                                  ? "bg-[#eef6f7] text-[#0c6c72]"
+                                  : "text-[#1f1f1f]"
+                              }`}
+                            >
+                              {formatCategoryName(categoryName)}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
                 <input
                   type="text"
                   aria-label="Search for products"
@@ -257,40 +374,50 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
                 </button>
               </div>
 
-              {isDesktopSearchFocused && suggestions.length > 0 && (
+              {isDesktopSearchFocused && (
                 <div className="absolute top-full right-0 left-0 z-40 mt-2 rounded-md border border-black/10 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.16)]">
                   <p className="px-2 py-1 text-xs font-medium tracking-wide text-[#6f6f6f] uppercase">
-                    {searchQuery.trim() ? "Top matches" : "Best rated products"}
+                    {searchQuery.trim()
+                      ? `Top matches in ${selectedCategoryLabel}`
+                      : `Best rated in ${selectedCategoryLabel}`}
                   </p>
 
-                  <ul className="mt-1 space-y-1">
-                    {suggestions.map((product) => (
-                      <li key={product.id}>
-                        <Link
-                          href={`/products/${product.id}`}
-                          onClick={() => {
-                            setIsDesktopSearchFocused(false)
-                            setSearchQuery(product.title)
-                          }}
-                          className="grid grid-cols-[44px_1fr] items-center gap-2 rounded px-2 py-2 transition hover:bg-[#f4f6f8]"
-                        >
-                          <div className="relative h-10 w-10">
-                            <Image
-                              src={product.image}
-                              alt={product.title}
-                              fill
-                              sizes="40px"
-                              className="object-contain"
-                            />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm text-[#1f1f1f]">{product.title}</p>
-                            <p className="truncate text-xs text-[#6c6c6c]">{product.category}</p>
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                  {suggestions.length > 0 ? (
+                    <ul className="mt-1 space-y-1">
+                      {suggestions.map((product) => (
+                        <li key={product.id}>
+                          <Link
+                            href={`/products/${product.id}`}
+                            onClick={() => {
+                              setIsDesktopSearchFocused(false)
+                              setSearchQuery(product.title)
+                            }}
+                            className="grid grid-cols-[44px_1fr] items-center gap-2 rounded px-2 py-2 transition hover:bg-[#f4f6f8]"
+                          >
+                            <div className="relative h-10 w-10">
+                              <Image
+                                src={product.image}
+                                alt={product.title}
+                                fill
+                                sizes="40px"
+                                className="object-contain"
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm text-[#1f1f1f]">{product.title}</p>
+                              <p className="truncate text-xs text-[#6c6c6c]">{product.category}</p>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="px-2 py-3 text-sm text-[#6c6c6c]">
+                      {shouldShowNoResults
+                        ? "No matching products found. Try a different word."
+                        : "No products available for this category yet."}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -443,41 +570,51 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
               </button>
             </div>
 
-            {isMobileSearchFocused && suggestions.length > 0 && (
+            {isMobileSearchFocused && (
               <div className="absolute top-full right-0 left-0 z-40 mt-2 rounded-md border border-black/10 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.16)]">
                 <p className="px-2 py-1 text-[11px] font-medium tracking-wide text-[#6f6f6f] uppercase">
-                  {searchQuery.trim() ? "Top matches" : "Best rated products"}
+                  {searchQuery.trim()
+                    ? `Top matches in ${selectedCategoryLabel}`
+                    : `Best rated in ${selectedCategoryLabel}`}
                 </p>
 
-                <ul className="mt-1 space-y-1">
-                  {suggestions.map((product) => (
-                    <li key={product.id}>
-                      <Link
-                        href={`/products/${product.id}`}
-                        onClick={() => {
-                          setIsMobileSearchFocused(false)
-                          setIsMobileMenuOpen(false)
-                          setSearchQuery(product.title)
-                        }}
-                        className="grid grid-cols-[40px_1fr] items-center gap-2 rounded px-2 py-2 transition hover:bg-[#f4f6f8]"
-                      >
-                        <div className="relative h-9 w-9">
-                          <Image
-                            src={product.image}
-                            alt={product.title}
-                            fill
-                            sizes="36px"
-                            className="object-contain"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm text-[#1f1f1f]">{product.title}</p>
-                          <p className="truncate text-xs text-[#6c6c6c]">{product.category}</p>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                {suggestions.length > 0 ? (
+                  <ul className="mt-1 space-y-1">
+                    {suggestions.map((product) => (
+                      <li key={product.id}>
+                        <Link
+                          href={`/products/${product.id}`}
+                          onClick={() => {
+                            setIsMobileSearchFocused(false)
+                            setIsMobileMenuOpen(false)
+                            setSearchQuery(product.title)
+                          }}
+                          className="grid grid-cols-[40px_1fr] items-center gap-2 rounded px-2 py-2 transition hover:bg-[#f4f6f8]"
+                        >
+                          <div className="relative h-9 w-9">
+                            <Image
+                              src={product.image}
+                              alt={product.title}
+                              fill
+                              sizes="36px"
+                              className="object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm text-[#1f1f1f]">{product.title}</p>
+                            <p className="truncate text-xs text-[#6c6c6c]">{product.category}</p>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="px-2 py-3 text-sm text-[#6c6c6c]">
+                    {shouldShowNoResults
+                      ? "No matching products found. Try a different word."
+                      : "No products available for this category yet."}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -489,13 +626,14 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
           }`}
         >
           <div className="space-y-4 px-3 py-4 sm:px-4 sm:py-5">
-            <button
-              type="button"
+            <Link
+              href="/categories"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="flex w-full items-center justify-between rounded-md bg-white/10 px-4 py-3 text-left text-base font-medium"
             >
               <span>Browse By Category</span>
               <ChevronDown className="h-5 w-5" />
-            </button>
+            </Link>
 
             <nav aria-label="Mobile primary" className="grid gap-2">
               {topLinks.map((link) => (
@@ -531,15 +669,15 @@ export function HomeNavbar({ searchableProducts }: HomeNavbarProps) {
       <div className="bg-(--winstore-nav-bottom) text-white">
         <div className="mx-auto hidden max-w-11/12 w-full items-center justify-between px-4 py-4 lg:flex lg:px-8">
           <div className="flex items-center gap-10">
-            <button
-              type="button"
-              className="flex items-end gap-4 text-xl font-light leading-tight"
+            <Link
+              href="/categories"
+              className="flex items-end gap-4 text-xl font-light leading-tight transition hover:text-white/80"
             >
               <Menu className="h-6 w-6" />
               <span>
                 Browse By Category
               </span>
-            </button>
+            </Link>
             <nav aria-label="Primary" className="flex items-center gap-12">
               {topLinks.map((link) => (
                 <Link
